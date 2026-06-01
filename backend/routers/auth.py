@@ -1,46 +1,42 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from datetime import timedelta
-import models, schemas, auth, database
-from dependencies import get_current_user
+from db.session import get_db
+from schemas.user import UserCreate, UserResponse
+from services.auth_service import register_user, authenticate_user, generate_token
+from dependencies.auth import get_current_user
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from models.user import User
+from cache.redis_client import cache_delete
 
 router = APIRouter(tags=["Authentication"])
 
-@router.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if db_user:
+@router.post("/register", response_model=UserResponse)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = register_user(db, user.username, user.password)
+    if not new_user:
         raise HTTPException(status_code=400, detail="Username already registered")
-    hashed_password = auth.get_password_hash(user.password)
-    new_user = models.User(username=user.username, hashed_password=hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
     return new_user
 
 @router.post("/login")
-def login(response: Response, user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
-    if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
+def login(response: Response, user: UserCreate, db: Session = Depends(get_db)):
+    db_user = authenticate_user(db, user.username, user.password)
+    if not db_user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(
-        data={"sub": db_user.username}, expires_delta=access_token_expires
-    )
-    
+
+    access_token = generate_token(db_user.username)
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        max_age=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        expires=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=False # Set to True in production with HTTPS
+        secure=False  # Set True in production with HTTPS
     )
     return {"message": "Login successful"}
 
 @router.post("/logout", dependencies=[Depends(get_current_user)])
-def logout(response: Response):
+def logout(response: Response, current_user: User = Depends(get_current_user)):
+    cache_delete(f"user:{current_user.username}")
     response.delete_cookie("access_token")
     return {"message": "Logged out successfully"}

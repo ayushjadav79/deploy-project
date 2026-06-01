@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from database import engine
-import models
+from db.session import engine
+from db.base import Base
+import models.user # ensures model is registered with Base before create_all
 from routers import auth, users
 
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="User API")
 
