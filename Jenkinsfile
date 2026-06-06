@@ -23,11 +23,13 @@ pipeline {
         // NEW: Run SonarQube static analysis on the codebase
         stage('SonarQube Analysis') {
             steps {
-                // 'SonarQube' matches the name you set in Manage Jenkins → System
-                withSonarQubeEnv('SonarQube') {
-                    // 'SonarScanner' matches the name in Manage Jenkins → Tools
-                    def scannerHome = tool 'SonarScanner'
-                    sh "${scannerHome}/bin/sonar-scanner"
+                script {
+                    // 'SonarQube' matches the name you set in Manage Jenkins → System
+                    withSonarQubeEnv('SonarQube') {
+                        // 'SonarScanner' matches the name in Manage Jenkins → Tools
+                        def scannerHome = tool 'SonarScanner'
+                        sh "${scannerHome}/bin/sonar-scanner"
+                    }
                 }
             }
         }
