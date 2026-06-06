@@ -8,3 +8,4 @@ python-jose[cryptography]
 pydantic
 python-multipart
 redis
+prometheus-fastapi-instrumentator

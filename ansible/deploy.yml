@@ -1,0 +1,7 @@
+---
+- name: Deploy application to EC2
+  hosts: ec2
+  become: true
+
+  roles:
+    - app
