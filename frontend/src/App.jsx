@@ -95,7 +95,7 @@ const Register = () => {
       <h1 className="title">Create Account</h1>
       <p className="subtitle">Join our platform today</p>
       {error && <div className="error-msg">{error}</div>}
-      {success && <div className="error-msg" style={{color: '#10b981'}}>{success}</div>}
+      {success && <div className="error-msg" style={{ color: '#10b981' }}>{success}</div>}
       <form onSubmit={handleRegister}>
         <div className="form-group">
           <label className="form-label">Username</label>
@@ -118,8 +118,14 @@ const Register = () => {
 
 const Home = ({ setAuth }) => {
   const [user, setUser] = useState(null);
+  const [todos, setTodos] = useState([]);
+  const [newTitle, setNewTitle] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Fetch the logged-in user's profile
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -127,7 +133,7 @@ const Home = ({ setAuth }) => {
         if (!res.ok) throw new Error('Not authenticated');
         const data = await res.json();
         setUser(data);
-      } catch (err) {
+      } catch {
         setAuth(false);
         navigate('/login');
       }
@@ -135,31 +141,131 @@ const Home = ({ setAuth }) => {
     fetchUser();
   }, [navigate, setAuth]);
 
-  const handleLogout = async () => {
-    try {
-      await fetch(`${API_BASE}/logout`, { method: 'POST' });
-      setAuth(false);
-      navigate('/login');
-    } catch (err) {
-      console.error('Logout failed', err);
-    }
+  // Fetch todos once user is loaded
+  useEffect(() => {
+    if (!user) return;
+    fetchTodos();
+  }, [user]);
+
+  const fetchTodos = async () => {
+    const res = await fetch(`${API_BASE}/todos/`);
+    if (res.ok) setTodos(await res.json());
   };
 
-  if (!user) return <div className="title" style={{marginTop: '2rem'}}>Loading...</div>;
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+    setLoading(true);
+    const res = await fetch(`${API_BASE}/todos/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: newTitle.trim() }),
+    });
+    if (res.ok) {
+      setNewTitle('');
+      fetchTodos();
+    }
+    setLoading(false);
+  };
+
+  const handleToggle = async (todo) => {
+    await fetch(`${API_BASE}/todos/${todo.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: !todo.completed }),
+    });
+    fetchTodos();
+  };
+
+  const handleEditSave = async (id) => {
+    if (!editTitle.trim()) return;
+    await fetch(`${API_BASE}/todos/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: editTitle.trim() }),
+    });
+    setEditingId(null);
+    fetchTodos();
+  };
+
+  const handleDelete = async (id) => {
+    await fetch(`${API_BASE}/todos/${id}`, { method: 'DELETE' });
+    fetchTodos();
+  };
+
+  const handleLogout = async () => {
+    await fetch(`${API_BASE}/logout`, { method: 'POST' });
+    setAuth(false);
+    navigate('/login');
+  };
+
+  if (!user) return <div className="title" style={{ marginTop: '2rem' }}>Loading...</div>;
+
+  const remaining = todos.filter(t => !t.completed).length;
 
   return (
-    <div className="card" style={{textAlign: 'center'}}>
-      <div style={{display: 'flex', justifyContent: 'center', marginBottom: '1rem'}}>
-        <div style={{background: 'var(--accent-color)', padding: '1rem', borderRadius: '50%'}}>
-          <User size={40} color="white" />
+    <div className="todo-container">
+      <div className="todo-header">
+        <div>
+          <h1 className="title" style={{ textAlign: 'left', marginBottom: '0.25rem' }}>
+            My Todos
+          </h1>
+          <p className="subtitle" style={{ textAlign: 'left', marginBottom: 0 }}>
+            Hey {user.username} · {remaining} task{remaining !== 1 ? 's' : ''} remaining
+          </p>
         </div>
+        <button onClick={handleLogout} className="btn-icon" title="Logout">
+          <LogOut size={18} />
+        </button>
       </div>
-      <h1 className="title">Hello, {user.username}!</h1>
-      <p className="subtitle">You have successfully authenticated with JWT Cookies.</p>
-      
-      <button onClick={handleLogout} className="btn" style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'transparent', border: '1px solid var(--error-color)', color: 'var(--error-color)', marginTop: '2rem'}}>
-        <LogOut size={18} /> Logout
-      </button>
+
+      <form onSubmit={handleAdd} className="todo-add-form">
+        <input
+          type="text"
+          className="form-input"
+          placeholder="Add a new task..."
+          value={newTitle}
+          onChange={e => setNewTitle(e.target.value)}
+        />
+        <button type="submit" className="btn btn-add" disabled={loading}>
+          {loading ? '...' : '+'}
+        </button>
+      </form>
+
+      <ul className="todo-list">
+        {todos.length === 0 && (
+          <li className="todo-empty">No tasks yet. Add one above!</li>
+        )}
+        {todos.map(todo => (
+          <li key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
+            <input
+              type="checkbox"
+              className="todo-check"
+              checked={todo.completed}
+              onChange={() => handleToggle(todo)}
+            />
+            {editingId === todo.id ? (
+              <>
+                <input
+                  className="form-input todo-edit-input"
+                  value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleEditSave(todo.id)}
+                  autoFocus
+                />
+                <button className="btn-icon" onClick={() => handleEditSave(todo.id)} title="Save">✓</button>
+                <button className="btn-icon" onClick={() => setEditingId(null)} title="Cancel">✕</button>
+              </>
+            ) : (
+              <>
+                <span className="todo-title">{todo.title}</span>
+                <button className="btn-icon" onClick={() => { setEditingId(todo.id); setEditTitle(todo.title); }} title="Edit">✎</button>
+                <button className="btn-icon btn-delete" onClick={() => handleDelete(todo.id)} title="Delete">🗑</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
