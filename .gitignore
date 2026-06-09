@@ -7,6 +7,9 @@ env/
 .env
 backend/.env
 
+# Logs
+backend/logs/
+
 # Node
 node_modules/
 dist/
