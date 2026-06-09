@@ -116,6 +116,11 @@ body {
   text-decoration: none;
   font-weight: 500;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
 }
 
 .link:hover {
@@ -345,7 +350,7 @@ body {
   color: #ef4444 !important;
 }
 .btn-logout:hover {
-  color: #dc2626 !important;
+  color: #fca5a5 !important;
   background: rgba(239, 68, 68, 0.12) !important;
 }
 
@@ -394,7 +399,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ef4444;
+  color: #fca5a5;
   margin-bottom: 0.25rem;
 }
 
@@ -442,7 +447,7 @@ body {
 }
 
 .btn-confirm-danger {
-  background: #ef4444;
+  background: #dc2626;
   color: #fff;
 }
 

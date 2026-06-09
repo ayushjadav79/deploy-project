@@ -20,6 +20,35 @@ pipeline {
             }
         }
 
+        // Run backend (pytest) and frontend (vitest) tests to generate coverage reports
+        // These reports are consumed by the SonarQube Analysis stage below
+        stage('Test') {
+            parallel {
+                stage('Backend Tests') {
+                    steps {
+                        sh """
+                            cd backend
+                            pip install -r requirements.txt --quiet
+                            pytest tests/ \
+                              --cov=. \
+                              --cov-report=xml:coverage-reports/coverage.xml \
+                              --cov-config=.coveragerc \
+                              -q
+                        """
+                    }
+                }
+                stage('Frontend Tests') {
+                    steps {
+                        sh """
+                            cd frontend
+                            npm ci --silent
+                            npm run coverage
+                        """
+                    }
+                }
+            }
+        }
+
         // NEW: Run SonarQube static analysis on the codebase
         stage('SonarQube Analysis') {
             steps {

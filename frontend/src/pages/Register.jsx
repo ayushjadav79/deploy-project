@@ -47,8 +47,10 @@ const Register = () => {
       {success && <div className="error-msg" style={{ color: '#10b981' }}>{success}</div>}
       <form onSubmit={handleRegister}>
         <div className="form-group">
-          <label className="form-label">Username</label>
+          {/* L50: label associated with input via htmlFor/id */}
+          <label className="form-label" htmlFor="register-username">Username</label>
           <input
+            id="register-username"
             type="text"
             className="form-input"
             value={username}
@@ -63,7 +65,8 @@ const Register = () => {
       </form>
       <div className="footer-text">
         Already have an account?{' '}
-        <span className="link" onClick={() => navigate('/login')}>Sign In</span>
+        {/* L66: native button instead of non-interactive span with onClick */}
+        <button type="button" className="link" onClick={() => navigate('/login')}>Sign In</button>
       </div>
     </div>
   );

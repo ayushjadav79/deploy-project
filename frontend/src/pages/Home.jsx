@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Trash2 } from 'lucide-react';
 import ConfirmModal from '../components/ConfirmModal';
@@ -74,7 +75,7 @@ const Home = ({ setAuth }) => {
   const todoMap = Object.fromEntries(todos.map(t => [t.id, t]));
   const sortedTodos = [
     ...order.filter(id => todoMap[id] && !todoMap[id].completed).map(id => todoMap[id]),
-    ...completedOrder.filter(id => todoMap[id] && todoMap[id].completed).map(id => todoMap[id]),
+    ...completedOrder.filter(id => todoMap[id]?.completed).map(id => todoMap[id]),   // L77: optional chain
   ];
 
   // ── CRUD handlers ──────────────────────────────────────────────────────────
@@ -97,12 +98,13 @@ const Home = ({ setAuth }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ completed: !todo.completed }),
     });
-    if (!todo.completed) {
-      setOrder(prev => prev.filter(id => id !== todo.id));
-      setCompletedOrder(prev => [todo.id, ...prev.filter(id => id !== todo.id)]);
-    } else {
+    // L100: positive condition first (no negated condition)
+    if (todo.completed) {
       setCompletedOrder(prev => prev.filter(id => id !== todo.id));
       setOrder(prev => [todo.id, ...prev.filter(id => id !== todo.id)]);
+    } else {
+      setOrder(prev => prev.filter(id => id !== todo.id));
+      setCompletedOrder(prev => [todo.id, ...prev.filter(id => id !== todo.id)]);
     }
     setTodos(prev => prev.map(t => t.id === todo.id ? { ...t, completed: !t.completed } : t));
   };
@@ -230,7 +232,7 @@ const Home = ({ setAuth }) => {
     if (draggingId) commitDrop();
   }, [draggingId, commitDrop]);
 
-  // Global mouse/touch move & up
+  // Global mouse/touch move & up — use globalThis instead of window (L243-L251)
   useEffect(() => {
     const onMove = (e) => {
       if (!dragId.current) return;
@@ -240,15 +242,15 @@ const Home = ({ setAuth }) => {
     };
     const onUp = () => { if (dragId.current) endDrag(); };
 
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup',   onUp);
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('touchend',  onUp);
+    globalThis.addEventListener('mousemove', onMove);
+    globalThis.addEventListener('mouseup',   onUp);
+    globalThis.addEventListener('touchmove', onMove, { passive: false });
+    globalThis.addEventListener('touchend',  onUp);
     return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup',   onUp);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('touchend',  onUp);
+      globalThis.removeEventListener('mousemove', onMove);
+      globalThis.removeEventListener('mouseup',   onUp);
+      globalThis.removeEventListener('touchmove', onMove);
+      globalThis.removeEventListener('touchend',  onUp);
     };
   }, [moveGhost, endDrag]);
 
@@ -257,7 +259,7 @@ const Home = ({ setAuth }) => {
 
   const remaining      = todos.filter(t => !t.completed).length;
   const incompleteList = order.filter(id => todoMap[id] && !todoMap[id].completed).map(id => todoMap[id]);
-  const completedList  = completedOrder.filter(id => todoMap[id] && todoMap[id].completed).map(id => todoMap[id]);
+  const completedList  = completedOrder.filter(id => todoMap[id]?.completed).map(id => todoMap[id]);  // L260: optional chain
 
   const renderItem = (todo, idx, group) => {
     const isDragging   = draggingId === todo.id;
@@ -266,10 +268,14 @@ const Home = ({ setAuth }) => {
       <li
         key={todo.id}
         data-todo-id={todo.id}
+        role="option"
+        tabIndex={0}
+        aria-selected={isDragging}
         className={`todo-item${todo.completed ? ' completed' : ''}${isDragging ? ' dragging' : ''}${isDropTarget ? ' drop-target' : ''}`}
         onMouseDown={(e) => startLongPress(todo.id, group, idx, e)}
         onTouchStart={(e) => startLongPress(todo.id, group, idx, e)}
         onMouseLeave={cancelLongPress}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startLongPress(todo.id, group, idx, e); }}
       >
         <span className="drag-handle" title="Hold to drag">⠿</span>
         <input
@@ -329,7 +335,8 @@ const Home = ({ setAuth }) => {
           <div>
             <h1 className="title" style={{ textAlign: 'left', marginBottom: '0.25rem' }}>My Todos</h1>
             <p className="subtitle" style={{ textAlign: 'left', marginBottom: 0 }}>
-              Hey {user.username} · {remaining} task{remaining !== 1 ? 's' : ''} remaining
+              {/* L332: positive condition first — no negated condition */}
+              Hey {user.username} · {remaining} task{remaining === 1 ? '' : 's'} remaining
             </p>
           </div>
           <button onClick={() => setLogoutModal(true)} className="btn-icon btn-logout" title="Logout">
@@ -348,7 +355,7 @@ const Home = ({ setAuth }) => {
           <button type="submit" className="btn btn-add" disabled={loading}>{loading ? '...' : '+'}</button>
         </form>
 
-        <ul className="todo-list">
+        <ul className="todo-list" role="listbox" aria-label="Todo items">
           {sortedTodos.length === 0 && <li className="todo-empty">No tasks yet. Add one above!</li>}
           {incompleteList.map((todo, idx) => renderItem(todo, idx, 'incomplete'))}
           {completedList.map((todo, idx)  => renderItem(todo, idx, 'completed'))}
@@ -356,6 +363,10 @@ const Home = ({ setAuth }) => {
       </div>
     </>
   );
+};
+
+Home.propTypes = {
+  setAuth: PropTypes.func.isRequired,
 };
 
 export default Home;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import PasswordField, { isPasswordValid } from '../components/PasswordField';
 
@@ -45,8 +46,10 @@ const Login = ({ setAuth }) => {
       {error && <div className="error-msg">{error}</div>}
       <form onSubmit={handleLogin}>
         <div className="form-group">
-          <label className="form-label">Username</label>
+          {/* L48: label associated with input via htmlFor/id */}
+          <label className="form-label" htmlFor="login-username">Username</label>
           <input
+            id="login-username"
             type="text"
             className="form-input"
             value={username}
@@ -60,11 +63,16 @@ const Login = ({ setAuth }) => {
         </button>
       </form>
       <div className="footer-text">
-        Don't have an account?{' '}
-        <span className="link" onClick={() => navigate('/register')}>Register</span>
+        Don&apos;t have an account?{' '}
+        {/* L64: native button instead of non-interactive span with onClick */}
+        <button type="button" className="link" onClick={() => navigate('/register')}>Register</button>
       </div>
     </div>
   );
+};
+
+Login.propTypes = {
+  setAuth: PropTypes.func.isRequired,
 };
 
 export default Login;

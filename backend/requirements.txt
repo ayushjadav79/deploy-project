@@ -10,3 +10,6 @@ python-multipart
 redis
 prometheus-fastapi-instrumentator
 python-dotenv
+pytest
+pytest-cov
+httpx

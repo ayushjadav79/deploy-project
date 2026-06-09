@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Eye, EyeOff, Check } from 'lucide-react';
 
 // Password rules — single source of truth
@@ -6,7 +7,7 @@ export const PASSWORD_RULES = [
   { id: 'length',  label: '8–14 characters',          test: (p) => p.length >= 8 && p.length <= 14 },
   { id: 'upper',   label: 'At least one uppercase',    test: (p) => /[A-Z]/.test(p) },
   { id: 'lower',   label: 'At least one lowercase',    test: (p) => /[a-z]/.test(p) },
-  { id: 'number',  label: 'At least one number',       test: (p) => /[0-9]/.test(p) },
+  { id: 'number',  label: 'At least one number',       test: (p) => /\d/.test(p) },
   { id: 'special', label: 'At least one special char', test: (p) => /[^A-Za-z0-9]/.test(p) },
 ];
 
@@ -14,12 +15,14 @@ export const isPasswordValid = (p) => PASSWORD_RULES.every((r) => r.test(p));
 
 const PasswordField = ({ value, onChange, showRules = false }) => {
   const [visible, setVisible] = useState(false);
+  const inputId = useId();
 
   return (
     <div className="form-group">
-      <label className="form-label">Password</label>
+      <label className="form-label" htmlFor={inputId}>Password</label>
       <div className="password-wrapper">
         <input
+          id={inputId}
           type={visible ? 'text' : 'password'}
           className="form-input"
           value={value}
@@ -53,6 +56,12 @@ const PasswordField = ({ value, onChange, showRules = false }) => {
       )}
     </div>
   );
+};
+
+PasswordField.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  showRules: PropTypes.bool,
 };
 
 export default PasswordField;

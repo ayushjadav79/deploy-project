@@ -13,5 +13,17 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
-  }
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/__tests__/setup.js'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['lcov', 'text'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/__tests__/**', 'src/main.jsx'],
+    },
+  },
 })

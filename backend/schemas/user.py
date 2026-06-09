@@ -16,7 +16,7 @@ class UserCreate(BaseModel):
             errors.append("must contain at least one uppercase letter")
         if not re.search(r"[a-z]", v):
             errors.append("must contain at least one lowercase letter")
-        if not re.search(r"[0-9]", v):
+        if not re.search(r"\d", v):
             errors.append("must contain at least one number")
         if not re.search(r"[^A-Za-z0-9]", v):
             errors.append("must contain at least one special character")

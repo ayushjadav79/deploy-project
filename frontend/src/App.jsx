@@ -5,7 +5,7 @@ import Register from './pages/Register';
 import Home     from './pages/Home';
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [, setIsAuthenticated] = useState(false);
 
   return (
     <div className="app-container">
