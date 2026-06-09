@@ -9,3 +9,4 @@ pydantic
 python-multipart
 redis
 prometheus-fastapi-instrumentator
+python-dotenv
