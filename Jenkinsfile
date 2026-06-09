@@ -28,32 +28,34 @@ pipeline {
                     steps {
                         sh """
                             cd backend
-                            # Create an isolated venv — avoids the PEP 668 "externally-managed-environment" error
-                            python3 -m venv .test-venv
-                            .test-venv/bin/pip install -r requirements.txt --quiet
-                            .test-venv/bin/pytest tests/ \\
-                              --cov=. \\
-                              --cov-report=xml:coverage-reports/coverage.xml \\
-                              --cov-config=.coveragerc \\
+                            # --break-system-packages bypasses the PEP 668 restriction on Debian/Ubuntu
+                            # when python3-venv is not installed on the Jenkins agent
+                            pip3 install -r requirements.txt --break-system-packages -q
+                            mkdir -p coverage-reports
+                            python3 -m pytest tests/ \
+                              --cov=. \
+                              --cov-report=xml:coverage-reports/coverage.xml \
+                              --cov-config=.coveragerc \
                               -q
-                            rm -rf .test-venv
                         """
                     }
                 }
                 stage('Frontend Tests') {
                     steps {
-                        sh """
-                            # Source nvm if Node was installed via nvm (fixes "npm: not found")
-                            export NVM_DIR="\$HOME/.nvm"
-                            [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-                            cd frontend
-                            npm ci --silent
-                            npm run coverage
-                        """
+                        // Docker is already available on this Jenkins agent (used later for image builds)
+                        // Running tests in a container avoids the missing npm/Node.js problem entirely
+                        sh '''
+                            docker run --rm \
+                              -v $(pwd)/frontend:/app \
+                              -w /app \
+                              node:20-alpine \
+                              sh -c "npm ci --silent && npm run coverage"
+                        '''
                     }
                 }
             }
         }
+
 
         // NEW: Run SonarQube static analysis on the codebase
         stage('SonarQube Analysis') {
