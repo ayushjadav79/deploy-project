@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import Login from '../../pages/Login';
+import Login from '../pages/Login';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
@@ -24,7 +24,7 @@ describe('Login page', () => {
     renderLogin();
     expect(screen.getByText('Welcome Back')).toBeInTheDocument();
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -36,7 +36,7 @@ describe('Login page', () => {
   it('shows error when password does not meet requirements', async () => {
     renderLogin();
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'user' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'weak' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'weak' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
     await waitFor(() => {
       expect(screen.getByText(/password does not meet/i)).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('Login page', () => {
     renderLogin(setAuth);
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
@@ -70,7 +70,7 @@ describe('Login page', () => {
     renderLogin();
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'user' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
@@ -83,7 +83,7 @@ describe('Login page', () => {
     renderLogin();
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'user' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {

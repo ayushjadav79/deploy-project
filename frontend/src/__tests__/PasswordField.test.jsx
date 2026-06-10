@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import PasswordField, { PASSWORD_RULES, isPasswordValid } from '../../components/PasswordField';
+import PasswordField, { PASSWORD_RULES, isPasswordValid } from '../components/PasswordField';
 
 describe('isPasswordValid', () => {
   it('returns false for empty string', () => {
@@ -65,21 +65,21 @@ describe('PasswordField component', () => {
 
   it('renders a password label', () => {
     setup();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
   });
 
   it('renders input as type password by default', () => {
     setup();
-    expect(screen.getByLabelText(/password/i)).toHaveAttribute('type', 'password');
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
   });
 
   it('toggles input type when eye button is clicked', () => {
     setup();
     const toggle = screen.getByRole('button', { name: /show password/i });
     fireEvent.click(toggle);
-    expect(screen.getByLabelText(/password/i)).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'text');
     fireEvent.click(screen.getByRole('button', { name: /hide password/i }));
-    expect(screen.getByLabelText(/password/i)).toHaveAttribute('type', 'password');
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
   });
 
   it('does not render rules list when showRules is false', () => {
@@ -105,7 +105,7 @@ describe('PasswordField component', () => {
   it('calls onChange when user types', () => {
     const onChange = vi.fn();
     render(<PasswordField value="" onChange={onChange} />);
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'x' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'x' } });
     expect(onChange).toHaveBeenCalled();
   });
 });

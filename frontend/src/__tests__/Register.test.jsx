@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import Register from '../../pages/Register';
+import Register from '../pages/Register';
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -17,14 +17,20 @@ const renderRegister = () => {
 describe('Register page', () => {
   beforeEach(() => {
     mockFetch.mockReset();
-    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    // Restore real timers in case any individual test activates fake timers.
+    // vi.useFakeTimers() must NOT be called globally here — it breaks waitFor,
+    // which uses setTimeout internally to retry assertions.
+    vi.useRealTimers();
   });
 
   it('renders the registration form', () => {
     renderRegister();
     expect(screen.getByText('Create Account')).toBeInTheDocument();
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument();
   });
 
@@ -36,7 +42,7 @@ describe('Register page', () => {
   it('shows error when password does not meet requirements', async () => {
     renderRegister();
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'user' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'weak' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'weak' } });
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
     await waitFor(() => {
       expect(screen.getByText(/password does not meet/i)).toBeInTheDocument();
@@ -49,7 +55,7 @@ describe('Register page', () => {
     renderRegister();
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'newuser' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
@@ -65,7 +71,7 @@ describe('Register page', () => {
     renderRegister();
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'taken' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
@@ -78,7 +84,7 @@ describe('Register page', () => {
     renderRegister();
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'user' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
@@ -91,7 +97,7 @@ describe('Register page', () => {
     renderRegister();
 
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'myuser' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Test@123' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Test@123' } });
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import ConfirmModal from '../../components/ConfirmModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const defaultProps = {
   isOpen: true,
