@@ -44,10 +44,15 @@ pipeline {
                     steps {
                         // Docker is already available on this Jenkins agent (used later for image builds)
                         // Running tests in a container avoids the missing npm/Node.js problem entirely
+                        // Pass the host docker socket's GID at runtime so the container
+                        // inherits the correct group and can reach /var/run/docker.sock.
+                        // This fixes the "permission denied" error without requiring an
+                        // image rebuild whenever the host GID changes.
                         sh '''
                             docker run --rm \
                               -v $(pwd)/frontend:/app \
                               -w /app \
+                              --group-add $(stat -c '%g' /var/run/docker.sock) \
                               node:20-alpine \
                               sh -c "npm ci --silent && npm run coverage"
                         '''

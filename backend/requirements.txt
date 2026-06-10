@@ -12,4 +12,5 @@ prometheus-fastapi-instrumentator
 python-dotenv
 pytest
 pytest-cov
-httpx
+anyio[trio]
+httpx>=0.27
