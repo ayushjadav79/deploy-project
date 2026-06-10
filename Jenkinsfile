@@ -47,7 +47,7 @@ pipeline {
                         // This avoids all docker socket permission issues during testing.
                         sh '''
                             cd frontend
-                            npm ci --silent
+                            npm ci --no-fund --no-audit
                             npm run coverage
                         '''
                     }
