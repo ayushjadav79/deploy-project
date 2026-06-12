@@ -18,7 +18,6 @@ const ConfirmModal = ({
       className="modal-backdrop"
       onClick={onCancel}
       onKeyDown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') onCancel(); }}
-      aria-hidden="true"
     >
       {/* Native <dialog> element for proper accessibility */}
       <dialog
