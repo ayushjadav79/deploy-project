@@ -1,19 +1,19 @@
-output "instance_public_ip" {
-  value = aws_instance.web.public_ip
-  description = "Public IP of the EC2 instance"
+output "vm_public_ip" {
+  value       = azurerm_public_ip.pip.ip_address
+  description = "Public IP of the Azure VM"
 }
 
-output "backend_ecr_url" {
-  value       = aws_ecr_repository.backend.repository_url
-  description = "ECR URL for the backend image"
+output "acr_login_server" {
+  value       = data.azurerm_container_registry.acr.login_server
+  description = "ACR login server URL (eg. deployprojectacr.azurecr.io)"
 }
 
-output "frontend_ecr_url" {
-  value       = aws_ecr_repository.frontend.repository_url
-  description = "ECR URL for the frontend image"
+output "acr_backend_image" {
+  value       = "${data.azurerm_container_registry.acr.login_server}/deploy-project-backend"
+  description = "Full ACR image path for backend"
 }
 
-output "aws_account_id" {
-  value       = data.aws_caller_identity.current.account_id
-  description = "Your AWS account ID"
+output "acr_frontend_image" {
+  value       = "${data.azurerm_container_registry.acr.login_server}/deploy-project-frontend"
+  description = "Full ACR image path for frontend"
 }

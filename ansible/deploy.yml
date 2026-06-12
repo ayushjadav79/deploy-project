@@ -1,6 +1,6 @@
 ---
-- name: Deploy application to EC2
-  hosts: ec2
+- name: Deploy application to Azure VM
+  hosts: azure_vm
   become: true
 
   roles:

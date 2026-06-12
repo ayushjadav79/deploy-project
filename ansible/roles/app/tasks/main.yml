@@ -1,82 +1,84 @@
 ---
 - name: Create app directory
   file:
-    path: /home/ec2-user/app
+    path: /home/azureuser/app
     state: directory
-    owner: ec2-user
-    group: ec2-user
+    owner: azureuser
+    group: azureuser
     mode: '0755'
 
 - name: Copy docker-compose file
   template:
     src: docker-compose.yml.j2
-    dest: /home/ec2-user/app/docker-compose.yml
-    owner: ec2-user
-    group: ec2-user
+    dest: /home/azureuser/app/docker-compose.yml
+    owner: azureuser
+    group: azureuser
     mode: '0644'
 
 - name: Copy .env file
   copy:
     src: /tmp/app.env
-    dest: /home/ec2-user/app/.env
-    owner: ec2-user
-    group: ec2-user
+    dest: /home/azureuser/app/.env
+    owner: azureuser
+    group: azureuser
     mode: '0600'
 
-- name: Login to ECR
+# ACR login using the VM's System-Assigned Managed Identity
+# The VM has AcrPull role assigned via Terraform — no credentials needed!
+- name: Login to ECR using Managed Identity
   shell: |
-    aws ecr get-login-password --region {{ aws_region }} | \
-    docker login --username AWS --password-stdin {{ ecr_registry }}
+    az login --identity
+    az acr login --name {{ acr_name }}
   become: false
-  become_user: ec2-user
+  become_user: azureuser
 
 - name: Pull latest images
   shell: |
-    cd /home/ec2-user/app
+    cd /home/azureuser/app
     docker compose pull
   become: false
-  become_user: ec2-user
+  become_user: azureuser
 
 - name: Start / restart services
   shell: |
-    cd /home/ec2-user/app
+    cd /home/azureuser/app
     docker compose up -d --remove-orphans
   become: false
-  become_user: ec2-user
+  become_user: azureuser
 
 - name: Create grafana provisioning directories
   file:
     path: "{{ item }}"
     state: directory
-    owner: ec2-user
-    group: ec2-user
+    owner: azureuser
+    group: azureuser
     mode: '0755'
   loop:
-    - /home/ec2-user/app/grafana
-    - /home/ec2-user/app/grafana/provisioning
-    - /home/ec2-user/app/grafana/provisioning/datasources
-    - /home/ec2-user/app/grafana/provisioning/dashboards
+    - /home/azureuser/app/grafana
+    - /home/azureuser/app/grafana/provisioning
+    - /home/azureuser/app/grafana/provisioning/datasources
+    - /home/azureuser/app/grafana/provisioning/dashboards
 
 - name: Copy Prometheus config
   copy:
     src: prometheus.yml
-    dest: /home/ec2-user/app/prometheus.yml
-    owner: ec2-user
-    group: ec2-user
+    dest: /home/azureuser/app/prometheus.yml
+    owner: azureuser
+    group: azureuser
     mode: '0644'
 
 - name: Copy Grafana datasource config
   copy:
     src: grafana-datasource.yml
-    dest: /home/ec2-user/app/grafana/provisioning/datasources/prometheus.yml
-    owner: ec2-user
-    group: ec2-user
+    dest: /home/azureuser/app/grafana/provisioning/datasources/prometheus.yml
+    owner: azureuser
+    group: azureuser
     mode: '0644'
 
 - name: Copy Grafana dashboard provider config
   copy:
     src: grafana-dashboard-provider.yml
-    dest: /home/ec2-user/app/grafana/provisioning/dashboards/provider.yml
-    owner: ec2-user
-    group: ec2-user
+    dest: /home/azureuser/app/grafana/provisioning/dashboards/provider.yml
+    owner: azureuser
+    group: azureuser
     mode: '0644'
