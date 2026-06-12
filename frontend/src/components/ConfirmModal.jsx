@@ -13,12 +13,15 @@ const ConfirmModal = ({
 }) => {
   if (!isOpen) return null;
   return (
-    // Backdrop: click/keydown to close on Escape or Enter
-    <div
-      className="modal-backdrop"
-      onClick={onCancel}
-      onKeyDown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') onCancel(); }}
-    >
+    <div className="modal-wrapper">
+      {/* Backdrop: native <button> so click/keydown listeners are valid on an interactive element */}
+      <button
+        type="button"
+        className="modal-backdrop"
+        onClick={onCancel}
+        onKeyDown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') onCancel(); }}
+        aria-label="Close dialog"
+      />
       {/* Native <dialog> element for proper accessibility */}
       <dialog
         className="modal-box"

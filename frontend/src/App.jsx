@@ -5,7 +5,7 @@ import Register from './pages/Register';
 import Home     from './pages/Home';
 
 const App = () => {
-  const [_isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
     <div className="app-container">
@@ -14,7 +14,7 @@ const App = () => {
           <Route path="/login"    element={<Login    setAuth={setIsAuthenticated} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/"         element={<Home     setAuth={setIsAuthenticated} />} />
-          <Route path="*"         element={<Navigate to="/" />} />
+          <Route path="*"         element={<Navigate to={isAuthenticated ? '/' : '/login'} />} />
         </Routes>
       </Router>
     </div>

@@ -321,6 +321,9 @@ body {
   transition: opacity 0.2s ease;
   user-select: none;
   padding: 0 2px;
+  background: none;
+  border: none;
+  line-height: 1;
 }
 
 .todo-item:hover .drag-handle {
@@ -351,20 +354,23 @@ body {
 }
 .btn-logout:hover {
   color: #ff6b6b !important;
-  background: rgba(239, 68, 68, 0.12) !important;
+  background: #2d1515 !important;
 }
 
-/* ── Confirmation Modal ──────────────────────────────────────── */
+/* ── Confirmation Modal backdrop (native button) ─────────────── */
 .modal-backdrop {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  animation: fadeIn 0.15s ease;
+  border: none;
+  cursor: default;
+  padding: 0;
+}
+
+dialog.modal-box {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes fadeIn {
@@ -395,12 +401,23 @@ body {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(239, 68, 68, 0.12);
+  background: #2d1515;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ef4444;
+  color: #f87171;
   margin-bottom: 0.25rem;
+}
+
+/* ── Modal wrapper (fullscreen overlay container) ────────────── */
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.15s ease;
 }
 
 /* Reset native <dialog> element to match modal-box styling */

@@ -268,14 +268,19 @@ const Home = ({ setAuth }) => {
       <li
         key={todo.id}
         data-todo-id={todo.id}
-        tabIndex={0}
         className={`todo-item${todo.completed ? ' completed' : ''}${isDragging ? ' dragging' : ''}${isDropTarget ? ' drop-target' : ''}`}
         onMouseDown={(e) => startLongPress(todo.id, group, idx, e)}
         onTouchStart={(e) => startLongPress(todo.id, group, idx, e)}
         onMouseLeave={cancelLongPress}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startLongPress(todo.id, group, idx, e); }}
       >
-        <span className="drag-handle" title="Hold to drag">⠿</span>
+        <button
+          type="button"
+          className="drag-handle"
+          title="Hold to drag"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startLongPress(todo.id, group, idx, e); }}
+          aria-label="Drag to reorder"
+        >⠿</button>
         <input
           type="checkbox"
           className="todo-check"
