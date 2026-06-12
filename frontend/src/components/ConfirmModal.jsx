@@ -26,8 +26,6 @@ const ConfirmModal = ({
       <dialog
         className="modal-box"
         open
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
         aria-modal="true"
         aria-labelledby="modal-title"
       >

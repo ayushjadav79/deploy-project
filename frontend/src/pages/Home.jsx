@@ -269,15 +269,15 @@ const Home = ({ setAuth }) => {
         key={todo.id}
         data-todo-id={todo.id}
         className={`todo-item${todo.completed ? ' completed' : ''}${isDragging ? ' dragging' : ''}${isDropTarget ? ' drop-target' : ''}`}
-        onMouseDown={(e) => startLongPress(todo.id, group, idx, e)}
-        onTouchStart={(e) => startLongPress(todo.id, group, idx, e)}
-        onMouseLeave={cancelLongPress}
       >
         <button
           type="button"
           className="drag-handle"
           title="Hold to drag"
           tabIndex={0}
+          onMouseDown={(e) => startLongPress(todo.id, group, idx, e)}
+          onTouchStart={(e) => startLongPress(todo.id, group, idx, e)}
+          onMouseLeave={cancelLongPress}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startLongPress(todo.id, group, idx, e); }}
           aria-label="Drag to reorder"
         >⠿</button>
