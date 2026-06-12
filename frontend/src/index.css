@@ -350,7 +350,7 @@ body {
   color: #ef4444 !important;
 }
 .btn-logout:hover {
-  color: #fca5a5 !important;
+  color: #ff6b6b !important;
   background: rgba(239, 68, 68, 0.12) !important;
 }
 
@@ -399,8 +399,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fca5a5;
+  color: #ef4444;
   margin-bottom: 0.25rem;
+}
+
+/* Reset native <dialog> element to match modal-box styling */
+dialog {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  color: inherit;
 }
 
 .modal-title {

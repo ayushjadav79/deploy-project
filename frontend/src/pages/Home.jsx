@@ -268,9 +268,7 @@ const Home = ({ setAuth }) => {
       <li
         key={todo.id}
         data-todo-id={todo.id}
-        role="option"
         tabIndex={0}
-        aria-selected={isDragging}
         className={`todo-item${todo.completed ? ' completed' : ''}${isDragging ? ' dragging' : ''}${isDropTarget ? ' drop-target' : ''}`}
         onMouseDown={(e) => startLongPress(todo.id, group, idx, e)}
         onTouchStart={(e) => startLongPress(todo.id, group, idx, e)}
@@ -355,7 +353,7 @@ const Home = ({ setAuth }) => {
           <button type="submit" className="btn btn-add" disabled={loading}>{loading ? '...' : '+'}</button>
         </form>
 
-        <ul className="todo-list" role="listbox" aria-label="Todo items">
+        <ul className="todo-list" aria-label="Todo items">
           {sortedTodos.length === 0 && <li className="todo-empty">No tasks yet. Add one above!</li>}
           {incompleteList.map((todo, idx) => renderItem(todo, idx, 'incomplete'))}
           {completedList.map((todo, idx)  => renderItem(todo, idx, 'completed'))}

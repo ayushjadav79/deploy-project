@@ -13,19 +13,19 @@ const ConfirmModal = ({
 }) => {
   if (!isOpen) return null;
   return (
-    // Backdrop: role="presentation" + keyboard listener to close on Escape/Enter
+    // Backdrop: click/keydown to close on Escape or Enter
     <div
       className="modal-backdrop"
       onClick={onCancel}
       onKeyDown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') onCancel(); }}
-      role="presentation"
+      aria-hidden="true"
     >
-      {/* Dialog box: stops click/keyboard propagation so clicks inside don't close the modal */}
-      <div
+      {/* Native <dialog> element for proper accessibility */}
+      <dialog
         className="modal-box"
+        open
         onClick={(e) => e.stopPropagation()}
         onKeyDown={(e) => e.stopPropagation()}
-        role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
@@ -38,7 +38,7 @@ const ConfirmModal = ({
           <button className="btn-modal btn-modal-cancel" onClick={onCancel}>Cancel</button>
           <button className={`btn-modal ${confirmClass}`} onClick={onConfirm}>{confirmLabel}</button>
         </div>
-      </div>
+      </dialog>
     </div>
   );
 };
