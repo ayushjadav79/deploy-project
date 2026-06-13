@@ -126,23 +126,25 @@ pipeline {
         // Deploy using Ansible
         stage('Deploy via Ansible') {
             steps {
-                sshagent(credentials: ['azure-vm-ssh-key']) {
-                    withCredentials([file(credentialsId: 'azure-ssh-key-file', variable: 'SSH_KEY_FILE')]) {
-                        // Copy SSH key to a temp location Ansible can use
-                        sh "cp ${SSH_KEY_FILE} /tmp/azure_vm_key.pem && chmod 600 /tmp/azure_vm_key.pem"
+                // Use only the file credential — sshagent is removed intentionally.
+                // sshagent sets SSH_AUTH_SOCK which causes Ansible to use ControlMaster
+                // SSH multiplexing; that breaks inside containers (socket connection refused).
+                withCredentials([file(credentialsId: 'azure-ssh-key-file', variable: 'SSH_KEY_FILE')]) {
+                    // Copy SSH key to a temp location Ansible can use
+                    sh "cp ${SSH_KEY_FILE} /tmp/azure_vm_key.pem && chmod 600 /tmp/azure_vm_key.pem"
 
-                        // Write the inventory file dynamically with the real Azure VM IP
-                        sh """
-                            sed 's/{{ EC2_HOST_VALUE }}/${AZURE_VM_HOST}/' ansible/inventory.ini > /tmp/ansible_inventory.ini
-                        """
+                    // Write the inventory file dynamically with the real Azure VM IP
+                    sh "sed 's/{{ EC2_HOST_VALUE }}/${AZURE_VM_HOST}/' ansible/inventory.ini > /tmp/ansible_inventory.ini"
 
-                        // Run the Ansible playbook
-                        sh """
-                            ansible-playbook ansible/deploy.yml \\
-                              -i /tmp/ansible_inventory.ini \\
-                              --extra-vars "acr_backend=${ACR_BACKEND} acr_frontend=${ACR_FRONTEND} acr_login_server=${ACR_LOGIN_SERVER} acr_name=${ACR_NAME}"
-                        """
-                    }
+                    // Run the Ansible playbook.
+                    // ANSIBLE_CONFIG must be set explicitly — Ansible only searches the CWD
+                    // (workspace root), not subdirectories, so ansible/ansible.cfg is ignored otherwise.
+                    sh """
+                        export ANSIBLE_CONFIG=ansible/ansible.cfg
+                        ansible-playbook ansible/deploy.yml \\
+                          -i /tmp/ansible_inventory.ini \\
+                          --extra-vars "acr_backend=${ACR_BACKEND} acr_frontend=${ACR_FRONTEND} acr_login_server=${ACR_LOGIN_SERVER} acr_name=${ACR_NAME}"
+                    """
                 }
             }
         }
