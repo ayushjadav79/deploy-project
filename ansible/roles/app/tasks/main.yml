@@ -31,13 +31,10 @@
   become: false
   become_user: azureuser
 
-- name: Start / restart services
-  shell: |
-    cd /home/azureuser/app
-    docker compose up -d --remove-orphans
-  become: false
-  become_user: azureuser
-
+# Create directories and copy ALL config files before starting containers.
+# If prometheus.yml does not exist when docker compose up runs, Docker will
+# auto-create a directory at that path, making the bind-mount fail with
+# "not a directory" because the compose file maps it as a file, not a volume.
 - name: Create grafana provisioning directories
   file:
     path: "{{ item }}"
@@ -74,3 +71,10 @@
     owner: azureuser
     group: azureuser
     mode: '0644'
+
+- name: Start / restart services
+  shell: |
+    cd /home/azureuser/app
+    docker compose up -d --remove-orphans
+  become: false
+  become_user: azureuser
