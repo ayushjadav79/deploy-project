@@ -27,8 +27,16 @@ const Register = () => {
         body: JSON.stringify({ username, password }),
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Registration failed');
+        let message = 'Unable to register. Please try again.';
+        try {
+          const data = await res.json();
+          if (data.detail) message = data.detail;
+        } catch {
+          // Server returned non-JSON (e.g. 502 HTML error page)
+          if (res.status === 400) message = 'Username already taken. Please choose another.';
+          else if (res.status === 503 || res.status === 502) message = 'Service is temporarily unavailable. Please try again shortly.';
+        }
+        throw new Error(message);
       }
       setSuccess('Registration successful! Please login.');
       setTimeout(() => navigate('/login'), 2000);
@@ -44,7 +52,7 @@ const Register = () => {
       <h1 className="title">Create Account</h1>
       <p className="subtitle">Join our platform today</p>
       {error   && <div className="error-msg">{error}</div>}
-      {success && <div className="error-msg" style={{ color: '#10b981' }}>{success}</div>}
+      {success && <div className="success-msg">{success}</div>}
       <form onSubmit={handleRegister}>
         <div className="form-group">
           {/* L50: label associated with input via htmlFor/id */}

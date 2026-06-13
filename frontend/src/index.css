@@ -134,6 +134,17 @@ body {
   text-align: center;
 }
 
+.success-msg {
+  color: #059669;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
 .footer-text {
   text-align: center;
   margin-top: 1.5rem;

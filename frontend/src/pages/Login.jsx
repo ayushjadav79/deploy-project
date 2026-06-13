@@ -27,8 +27,16 @@ const Login = ({ setAuth }) => {
         body: JSON.stringify({ username, password }),
       });
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Login failed');
+        let message = 'Unable to login. Please try again.';
+        try {
+          const data = await res.json();
+          if (data.detail) message = data.detail;
+        } catch {
+          // Server returned non-JSON (e.g. 502 HTML error page)
+          if (res.status === 401) message = 'Invalid username or password.';
+          else if (res.status === 503 || res.status === 502) message = 'Service is temporarily unavailable. Please try again shortly.';
+        }
+        throw new Error(message);
       }
       setAuth(true);
       navigate('/');
