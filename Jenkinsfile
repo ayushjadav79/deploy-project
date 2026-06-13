@@ -136,9 +136,6 @@ pipeline {
                             sed 's/{{ EC2_HOST_VALUE }}/${AZURE_VM_HOST}/' ansible/inventory.ini > /tmp/ansible_inventory.ini
                         """
 
-                        // Copy .env file so Ansible can upload it to the VM
-                        sh "cp .env /tmp/app.env"
-
                         // Run the Ansible playbook
                         sh """
                             ansible-playbook ansible/deploy.yml \\
@@ -160,7 +157,7 @@ pipeline {
         }
         always {
             sh "docker image prune -f"
-            sh "rm -f /tmp/azure_vm_key.pem /tmp/app.env /tmp/ansible_inventory.ini"
+            sh "rm -f /tmp/azure_vm_key.pem /tmp/ansible_inventory.ini"
         }
     }
 }

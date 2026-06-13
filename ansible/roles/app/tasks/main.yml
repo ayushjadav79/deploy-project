@@ -15,14 +15,6 @@
     group: azureuser
     mode: '0644'
 
-- name: Copy .env file
-  copy:
-    src: /tmp/app.env
-    dest: /home/azureuser/app/.env
-    owner: azureuser
-    group: azureuser
-    mode: '0600'
-
 # ACR login using the VM's System-Assigned Managed Identity
 # The VM has AcrPull role assigned via Terraform — no credentials needed!
 - name: Login to ECR using Managed Identity
