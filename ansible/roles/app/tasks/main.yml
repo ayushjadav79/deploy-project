@@ -56,6 +56,16 @@
     group: azureuser
     mode: '0644'
 
+- name: Copy nginx config
+  copy:
+    # Reference the canonical nginx/nginx.conf at project root via playbook_dir.
+    # This avoids keeping a duplicate copy in ansible/roles/app/files/.
+    src: "{{ playbook_dir }}/../nginx/nginx.conf"
+    dest: /home/azureuser/app/nginx.conf
+    owner: azureuser
+    group: azureuser
+    mode: '0644'
+
 - name: Copy Grafana datasource config
   copy:
     src: grafana-datasource.yml
