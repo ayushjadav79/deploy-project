@@ -136,6 +136,11 @@ pipeline {
                     // Write the inventory file dynamically with the real Azure VM IP
                     sh "sed 's/{{ EC2_HOST_VALUE }}/${AZURE_VM_HOST}/' ansible/inventory.ini > /tmp/ansible_inventory.ini"
 
+                    // Purge any stale Ansible ControlMaster sockets left over from previous
+                    // runs. These persist across builds and cause "connection refused" even
+                    // after ControlMaster is disabled in ansible.cfg.
+                    sh "rm -f /var/jenkins_home/.ansible/cp/*"
+
                     // Run the Ansible playbook.
                     // ANSIBLE_CONFIG must be set explicitly — Ansible only searches the CWD
                     // (workspace root), not subdirectories, so ansible/ansible.cfg is ignored otherwise.
