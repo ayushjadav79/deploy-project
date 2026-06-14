@@ -134,7 +134,7 @@ pipeline {
                     sh "cp ${SSH_KEY_FILE} /tmp/azure_vm_key.pem && chmod 600 /tmp/azure_vm_key.pem"
 
                     // Write the inventory file dynamically with the real Azure VM IP
-                    sh "sed 's/{{ EC2_HOST_VALUE }}/${AZURE_VM_HOST}/' ansible/inventory.ini > /tmp/ansible_inventory.ini"
+                    sh "sed 's/{{ AZURE_VM_HOST_VALUE }}/${AZURE_VM_HOST}/' ansible/inventory.ini > /tmp/ansible_inventory.ini"
 
                     // Purge any stale Ansible ControlMaster sockets left over from previous
                     // runs. These persist across builds and cause "connection refused" even

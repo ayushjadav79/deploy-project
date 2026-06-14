@@ -25,7 +25,6 @@ variable "admin_username" {
 
 variable "ssh_public_key_path" {
   description = "Path to your SSH public key file"
-  default     = "D:/Coding/Deploy-Project Details/azure_deploy_key.pub.pem"
 }
 
 variable "acr_name" {
