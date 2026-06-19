@@ -88,3 +88,22 @@
     docker compose up -d --remove-orphans
   become: false
   become_user: azureuser
+
+- name: Wait for application to be reachable on port 80
+  wait_for:
+    host: localhost
+    port: 80
+    delay: 10
+    timeout: 120
+    state: started
+  become: false
+
+- name: Confirm all containers are running
+  shell: docker compose -f /home/azureuser/app/docker-compose.yml ps
+  become: false
+  become_user: azureuser
+  register: compose_status
+
+- name: Print container status
+  debug:
+    var: compose_status.stdout_lines
