@@ -15,7 +15,13 @@ logger = logging.getLogger(__name__)
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="User API")
+app = FastAPI(
+    title="User API",
+    # root_path tells FastAPI it's served behind a reverse proxy at /api.
+    # Without this, Swagger UI fetches /openapi.json which nginx sends to the
+    # React frontend instead of the backend, causing "Unable to render" error.
+    root_path="/api",
+)
 
 # CORS
 app.add_middleware(
